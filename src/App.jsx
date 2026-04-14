@@ -67,6 +67,9 @@ export default function App() {
     concurrency: 2,
     interval: 500, // ms
     mockMode: true,
+    method: 'GET',
+    headers: '',
+    body: '',
     showOnlyErrors: false,
     enableToasts: true
   });
@@ -119,7 +122,27 @@ export default function App() {
       }
     } else {
       try {
-        const res = await fetch(url, { method: 'GET' });
+        const fetchOptions = {
+          method: config.method,
+          headers: {}
+        };
+        
+        if (config.headers) {
+          try {
+            // Support "Key: Value" or "Authorization: Bearer ..."
+            const lines = config.headers.split('\n');
+            lines.forEach(line => {
+              const [key, ...val] = line.split(':');
+              if (key && val.length) fetchOptions.headers[key.trim()] = val.join(':').trim();
+            });
+          } catch (e) { console.error("Header parse error", e); }
+        }
+
+        if (config.method !== 'GET' && config.body) {
+          fetchOptions.body = config.body;
+        }
+
+        const res = await fetch(url, fetchOptions);
         const latency = Date.now() - startTime;
         return { status: res.status, latency, id, timestamp: new Date().toISOString() };
       } catch (err) {
@@ -263,16 +286,55 @@ export default function App() {
                   disabled={isRunning}
                 />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-bg-tertiary transition-colors">
-                <input 
-                  type="checkbox" 
-                  checked={config.mockMode} 
-                  onChange={e => setConfig({...config, mockMode: e.target.checked})}
-                  style={{ width: 'auto' }}
-                  disabled={isRunning}
-                />
-                <span className="text-sm font-medium">Auto-simulation (Mock)</span>
-              </label>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                   <label className="text-sm font-semibold text-secondary">Method</label>
+                   <select value={config.method} onChange={e => setConfig({...config, method: e.target.value})} disabled={isRunning}>
+                      <option value="GET">GET</option>
+                      <option value="POST">POST</option>
+                      <option value="PUT">PUT</option>
+                      <option value="DELETE">DELETE</option>
+                   </select>
+                </div>
+                <div className="flex items-center gap-2 pt-6">
+                   <input 
+                    type="checkbox" 
+                    checked={config.mockMode} 
+                    onChange={e => setConfig({...config, mockMode: e.target.checked})}
+                    style={{ width: 'auto' }}
+                    disabled={isRunning}
+                  />
+                  <span className="text-sm font-medium">Auto-sim</span>
+                </div>
+              </div>
+
+              {!config.mockMode && (
+                <div className="space-y-4 animate-fade">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-secondary">Headers (Key: Value)</label>
+                    <textarea 
+                      className="w-full text-xs font-mono p-2 bg-bg-tertiary rounded border border-border-color"
+                      rows="2"
+                      placeholder="Authorization: Bearer ..."
+                      value={config.headers}
+                      onChange={e => setConfig({...config, headers: e.target.value})}
+                    />
+                  </div>
+                  {config.method !== 'GET' && (
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-secondary">Request Body (JSON)</label>
+                      <textarea 
+                        className="w-full text-xs font-mono p-2 bg-bg-tertiary rounded border border-border-color"
+                        rows="2"
+                        placeholder='{"key": "value"}'
+                        value={config.body}
+                        onChange={e => setConfig({...config, body: e.target.value})}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
