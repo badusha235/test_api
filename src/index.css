@@ -63,6 +63,7 @@ body {
 .flex-col { flex-direction: column; }
 .flex-1 { flex: 1 1 0%; }
 .items-center { align-items: center; }
+.items-start { align-items: flex-start; }
 .justify-between { justify-content: space-between; }
 .justify-center { justify-content: center; }
 .gap-1 { gap: 0.25rem; }
@@ -91,6 +92,7 @@ body {
 .h-20 { height: 5rem; }
 .h-100 { height: 25rem; }
 .min-h-100 { min-height: 25rem; }
+.h-300 { height: 300px; }
 .h-400 { height: 400px; }
 .min-w-0 { min-width: 0; }
 
@@ -185,10 +187,17 @@ button {
   z-index: 10;
 }
 
-.z-10 { z-index: 10; }
+.z-30 { z-index: 30; }
+.z-100 { z-index: 100; }
 .relative { position: relative; }
+.fixed { position: fixed; }
 .sticky { position: sticky; }
 .top-0 { top: 0; }
+.top-4 { top: 1rem; }
+.top-20 { top: 5rem; }
+.left-4 { left: 1rem; }
+.left-84 { left: 21rem; }
+.right-4 { right: 1rem; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

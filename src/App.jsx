@@ -34,10 +34,17 @@ const Toast = ({ message, type, id, onDismiss }) => {
   const borderClass = type === 'success' ? 'border-emerald-500' : type === 'warning' ? 'border-amber-500' : 'border-rose-500';
 
   return (
-    <div className={`toast-item animate-fade glass-card p-3 mb-2 rounded-lg border flex items-center gap-3 ${borderClass}`} style={{ minWidth: '240px' }}>
+    <div className={`toast-item animate-fade p-3 mb-2 rounded-lg border flex items-center gap-3 ${borderClass}`} 
+      style={{ 
+        minWidth: '220px', 
+        maxWidth: '300px',
+        backgroundColor: 'var(--bg-secondary)', 
+        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)',
+        zIndex: 1000
+      }}>
       {icons[type]}
-      <div className="flex-1 text-sm font-medium">{message}</div>
-      <button onClick={() => onDismiss(id)} className="text-tertiary">
+      <div className="flex-1 text-sm font-bold truncate">{message}</div>
+      <button onClick={() => onDismiss(id)} className="text-tertiary hover:text-primary">
         <Trash2 size={14} />
       </button>
     </div>
@@ -235,16 +242,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-full bg-bg-primary overflow-hidden">
-      {/* --- Notification Portals (Fixed) --- */}
-      <div className="fixed top-4 right-4 z-[100] flex flex-col items-end pointer-events-none">
-        {toasts.map(toast => (
-          <div key={toast.id} className="pointer-events-auto">
-            <Toast {...toast} onDismiss={dismissToast} />
-          </div>
-        ))}
-      </div>
-
-      {/* --- Sidebar (Configuration) --- */}
       <aside className="w-80 border-r bg-bg-secondary flex flex-col p-6 overflow-y-auto z-20 shadow-lg">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 bg-accent-primary rounded-lg text-white shadow-lg shadow-accent-primary/20">
@@ -411,8 +408,8 @@ export default function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* --- Chart Area --- */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="glass-card p-6 h-400 rounded-xl relative">
+            <div className="lg:col-span-2 space-y-8">
+              <div className="glass-card p-6 rounded-xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-bold text-primary flex items-center gap-2">
                     <BarChart3 size={18} className="text-accent-primary" />
@@ -420,12 +417,12 @@ export default function App() {
                   </h3>
                   <div className="flex gap-4 text-[10px] font-bold uppercase text-tertiary">
                     <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-accent-primary"></span> Successes</span>
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-error"></span> Blocked</span>
+                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full border border-error bg-transparent" style={{borderStyle: 'dashed'}}></span> Blocked</span>
                   </div>
                 </div>
-                <div className="w-full h-100 mt-4">
+                <div className="w-full h-300 mt-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="var(--accent-primary)" stopOpacity={0.3}/>
@@ -515,32 +512,6 @@ export default function App() {
 
             {/* --- Info Column --- */}
             <div className="space-y-6">
-              <section className="glass-card p-6 rounded-xl space-y-4">
-                <h4 className="font-bold text-sm flex items-center gap-2">
-                   <Bell size={18} className="text-accent-primary" />
-                   Notification Center
-                </h4>
-                <div className="flex items-center justify-between mb-2">
-                   <label className="text-xs font-bold text-tertiary uppercase flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={config.enableToasts} onChange={e => setConfig({...config, enableToasts: e.target.checked})} />
-                      Live Feed
-                   </label>
-                </div>
-                <div className="min-h-100 flex flex-col justify-start gap-2">
-                   {toasts.length === 0 && (
-                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-30 p-8 grayscale">
-                        <Bell size={48} className="mb-4 text-tertiary" />
-                        <p className="text-xs font-bold text-tertiary uppercase">No Alerts Active</p>
-                     </div>
-                   )}
-                   {toasts.map(toast => (
-                     <div key={toast.id} className="w-full">
-                        <Toast {...toast} onDismiss={dismissToast} />
-                     </div>
-                   ))}
-                </div>
-              </section>
-
               <section className="p-6 bg-accent-soft rounded-xl border border-accent-primary/20 space-y-4">
                 <h4 className="font-bold text-sm text-accent-primary uppercase tracking-tighter">System Intelligence</h4>
                 <ul className="space-y-3 text-xs">
@@ -558,6 +529,15 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* --- Notification Portals (Moved to Top Right and limited) --- */}
+      <div className="fixed top-4 right-4 flex flex-col items-end pointer-events-none" style={{ zIndex: 99999 }}>
+        {toasts.map(toast => (
+          <div key={toast.id} className="pointer-events-auto">
+            <Toast {...toast} onDismiss={dismissToast} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
